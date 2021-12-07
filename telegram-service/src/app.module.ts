@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TelegrafConfigService } from './services/telegraf-config.service';
 import { TelegrafModule } from 'nestjs-telegraf';
+import { AppUpdate } from './app.update';
 
 @Module({
   imports: [
@@ -13,6 +13,6 @@ import { TelegrafModule } from 'nestjs-telegraf';
       useClass: TelegrafConfigService,
     }),
   ],
-  providers: [AppService],
+  providers: [AppUpdate],
 })
 export class AppModule {}
