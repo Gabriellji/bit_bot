@@ -5,48 +5,65 @@ import {
   Start,
   Update,
   Sender,
-  On,
+  Action,
 } from 'nestjs-telegraf';
-import { ConfigService } from '@nestjs/config';
-// import { Context } from 'telegraf';
 import { Context } from './interfaces/context.interface';
-// import { Scenes } from 'telegraf';
-// "https://api.telegram.org/bot<...>/getUpdates";
+import { SceneNames, Actions, Commands } from './app.constants';
 
 @Update()
 export class AppUpdate {
-  constructor(private readonly configService: ConfigService) {}
+  supportedCommands = [
+    { command: '/help', description: 'Help' },
+    { command: '/start', description: 'Start' },
+  ];
 
   @Start()
-  onStart(): string {
-    return `Hello, I'm the bid bot. You can send me your ERC20 token that you want to exchange.`;
+  async onStart(ctx: Context): Promise<void> {
+    await ctx.reply(
+      "Hello, I'm the bid bot! Here is a list of commands that I can help you with",
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: '🤑 Make a bid', callback_data: Actions.BID },
+              { text: '⏱️ History', callback_data: 'history' },
+            ],
+            [{ text: '📢 Help', callback_data: Commands.HELP }],
+            [{ text: '🥇 Rate', callback_data: 'rate' }],
+            [
+              {
+                text: '🤓 Open GitHub',
+                url: 'https://github.com/Gabriellji/bit_bot',
+              },
+            ],
+          ],
+        },
+      },
+    );
+
+    const cmd = await ctx.telegram.getMyCommands();
+    if (!cmd) {
+      await ctx.telegram.setMyCommands(this.supportedCommands);
+    }
   }
 
-  @Hears(['hi', 'hello', 'hey', 'qq', 'yo'])
+  @Hears(['hi', 'hello', 'hey', 'yo'])
   onGreetings(@Sender('first_name') firstName: string): string {
     return `Hey ${firstName}`;
   }
 
-  @Command('help')
+  @Command(Commands.HELP)
   onHelp(): string {
-    return `Type /send_token, input the adress of your token and type /finish`;
+    return `Type /start to start with bot`;
   }
 
-  @Command('finish')
-  async onFinish(@Ctx() ctx: Context): Promise<void> {
-    await ctx.telegram.sendMessage(
-      this.configService.get('CHAT_ID'),
-      'NEW AUCTION!',
-    );
+  @Action(Commands.HELP)
+  async onHelpBtn(): Promise<void> {
+    console.log('on help btn')
   }
 
-  @On('message')
-  onMessage() {
-      return `Type /send_token, input the adress of your token and type /finish`;
+  @Action(Actions.BID)
+  async onBidBtn(@Ctx() ctx: Context): Promise<void> {
+    await ctx.scene.enter(SceneNames.INPUT_CONTRACT_SCENE);
   }
-
-  //   @Command('send_token')
-  //   async onSceneCommand(@Ctx() ctx: Scenes.SceneContext): Promise<void> {
-  //     await ctx.scene.enter(SEND_FILE_SCENE);
-  //   }
 }
