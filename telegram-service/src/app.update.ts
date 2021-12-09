@@ -7,43 +7,38 @@ import {
   Sender,
   Action,
 } from 'nestjs-telegraf';
-import { Context } from './interfaces/context.interface';
-import { SceneNames, Actions, Commands } from './app.constants';
+import { Context } from 'src/interfaces/context.interface';
+import {
+  SceneNames,
+  Actions,
+  Commands,
+  CommandsReply,
+  WelcomeMessages,
+  Menu,
+} from 'src/app.constants';
+import { githubUrl, supportedCommands } from 'src/constants/bot.constants';
 
 @Update()
 export class AppUpdate {
-  supportedCommands = [
-    { command: '/help', description: 'Help' },
-    { command: '/start', description: 'Start' },
-  ];
-
   @Start()
   async onStart(ctx: Context): Promise<void> {
-    await ctx.reply(
-      "Hello, I'm the bid bot! Here is a list of commands that I can help you with",
-      {
-        reply_markup: {
-          inline_keyboard: [
-            [
-              { text: '🤑 Make a bid', callback_data: Actions.BID },
-              { text: '⏱️ History', callback_data: 'history' },
-            ],
-            [{ text: '📢 Help', callback_data: Commands.HELP }],
-            [{ text: '🥇 Rate', callback_data: 'rate' }],
-            [
-              {
-                text: '🤓 Open GitHub',
-                url: 'https://github.com/Gabriellji/bit_bot',
-              },
-            ],
+    await ctx.reply(WelcomeMessages.MAIN_SCENE, {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: Menu.MAKE_BID, callback_data: Actions.BID },
+            { text: Menu.HISTORY, callback_data: Actions.HISTORY },
           ],
-        },
+          [{ text: Menu.HELP, callback_data: Commands.HELP }],
+          [{ text: Menu.RATE, callback_data: Actions.RATE }],
+          [{ text: Menu.GITHUB_LINK, url: githubUrl }],
+        ],
       },
-    );
+    });
 
     const cmd = await ctx.telegram.getMyCommands();
     if (!cmd) {
-      await ctx.telegram.setMyCommands(this.supportedCommands);
+      await ctx.telegram.setMyCommands(supportedCommands);
     }
   }
 
@@ -54,12 +49,12 @@ export class AppUpdate {
 
   @Command(Commands.HELP)
   onHelp(): string {
-    return `Type /start to start with bot`;
+    return CommandsReply.HELP;
   }
 
   @Action(Commands.HELP)
   async onHelpBtn(): Promise<void> {
-    console.log('on help btn')
+    console.log('on help btn');
   }
 
   @Action(Actions.BID)

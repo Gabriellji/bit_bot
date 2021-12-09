@@ -8,7 +8,16 @@ import {
   Action,
   Hears,
 } from 'nestjs-telegraf';
-import { SceneNames, Actions, Commands } from 'src/app.constants';
+import {
+  SceneNames,
+  Actions,
+  Commands,
+  WelcomeMessages,
+  Errors,
+  CommandsReply,
+  Buttons,
+  ChatMessages,
+} from 'src/app.constants';
 import Web3 from 'web3';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { Markup } from 'telegraf';
@@ -18,32 +27,23 @@ import { ConfigService } from '@nestjs/config';
 export class InputContract {
   constructor(private readonly configService: ConfigService) {}
 
-  web3 = new Web3('http://localhost:8545');
+  web3 = new Web3(this.configService.get('WEB3_HOST'));
 
   @SceneEnter()
   async onSceneEnter(@Ctx() ctx: SceneContext): Promise<void> {
     await ctx.replyWithHTML(
-      `
-      <b>Read me: </b>
-
-      <b>1. Insert ERC20 token that you want to exange.</b>
-
-      <b>2. Post with new auction will be created in channel</b>
-
-      <b>3. The auction will automaticly finish in one hour </b>
-
-      `,
+      WelcomeMessages.INPUT_CONTRACT_SCENE,
 
       Markup.inlineKeyboard([
-        Markup.button.callback('🚀 ERC20 Token', Actions.SEND_TOKEN),
-        Markup.button.callback('🏃‍♂️ Back', Actions.GO_BACK),
+        Markup.button.callback(Buttons.ERC20, Actions.SEND_TOKEN),
+        Markup.button.callback(Buttons.BACK, Actions.GO_BACK),
       ]),
     );
   }
 
   @Action(Actions.SEND_TOKEN)
   async onTokenBtn(@Ctx() ctx: SceneContext): Promise<void> {
-    await ctx.reply('Your ERC20 token contract is:');
+    await ctx.reply(CommandsReply.SEND_TOKEN);
   }
 
   @Action(Actions.GO_BACK)
@@ -53,35 +53,29 @@ export class InputContract {
 
   @SceneLeave()
   onSceneLeave(): string {
-    console.log('Leave from scene');
-    return 'Type /start to start again. Bye Bye 👋';
+    return CommandsReply.SCENE_LEAVE;
   }
 
   @On('message')
   async onMessage(@Ctx() ctx: SceneContext) {
+    let address: string | boolean;
     try {
-      const address = Web3.utils.toChecksumAddress(ctx.message['text']);
-      ctx.state.token = address;
+      const message = ctx.message['text'];
+      address = Web3.utils.toChecksumAddress(message);
       await ctx.telegram.sendMessage(
         this.configService.get('CHAT_ID'),
-        `❤️‍🔥 NEW AUCTION!❤️‍🔥
-
-        Click ⬇️ button to make a bid!
-
-        An auction will automaticly finish in one hour.
-
-        `,
+        ChatMessages.AUCTION_CHAT_MESSAGE,
+  
         Markup.inlineKeyboard([
-          Markup.button.callback(`😋 Make a bid!`, 'auction'),
+          Markup.button.callback(Buttons.MAKE_BID, Actions.AUCTION),
         ]),
       );
-      await ctx.scene.leave();
     } catch (e) {
-      await ctx.replyWithHTML(`
-      <b>Invalid ethereum address 😢</b>
-    `);
+      await ctx.replyWithHTML(Errors.INVALID_ADDRESS);
       await ctx.scene.leave();
     }
+    ctx.state.token = address;
+    await ctx.scene.leave();
   }
 
   @Command([Commands.LEAVE, Commands.EXIT, Commands.FINISH])
