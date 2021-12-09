@@ -4,6 +4,3 @@ export const supportedCommands = [
   { command: '/help', description: 'Help' },
   { command: '/start', description: 'Start' },
 ];
-
-
-

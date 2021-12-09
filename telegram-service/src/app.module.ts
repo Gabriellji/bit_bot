@@ -5,7 +5,6 @@ import { TelegrafModule } from 'nestjs-telegraf';
 import { AppUpdate } from 'src/app.update';
 import { InputContract } from 'src/scenes/input_contract.scene';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({

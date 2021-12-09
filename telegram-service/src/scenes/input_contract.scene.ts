@@ -1,13 +1,4 @@
-import {
-  Scene,
-  SceneEnter,
-  SceneLeave,
-  Command,
-  On,
-  Ctx,
-  Action,
-  Hears,
-} from 'nestjs-telegraf';
+import { Scene, SceneEnter, SceneLeave, Command, On, Ctx, Action, Hears } from 'nestjs-telegraf';
 import {
   SceneNames,
   Actions,
@@ -37,7 +28,7 @@ export class InputContract {
       Markup.inlineKeyboard([
         Markup.button.callback(Buttons.ERC20, Actions.SEND_TOKEN),
         Markup.button.callback(Buttons.BACK, Actions.GO_BACK),
-      ]),
+      ])
     );
   }
 
@@ -65,10 +56,8 @@ export class InputContract {
       await ctx.telegram.sendMessage(
         this.configService.get('CHAT_ID'),
         ChatMessages.AUCTION_CHAT_MESSAGE,
-  
-        Markup.inlineKeyboard([
-          Markup.button.callback(Buttons.MAKE_BID, Actions.AUCTION),
-        ]),
+
+        Markup.inlineKeyboard([Markup.button.callback(Buttons.MAKE_BID, Actions.AUCTION)])
       );
     } catch (e) {
       await ctx.replyWithHTML(Errors.INVALID_ADDRESS);

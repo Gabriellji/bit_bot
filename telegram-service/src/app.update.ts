@@ -1,21 +1,6 @@
-import {
-  Command,
-  Ctx,
-  Hears,
-  Start,
-  Update,
-  Sender,
-  Action,
-} from 'nestjs-telegraf';
+import { Command, Ctx, Hears, Start, Update, Sender, Action } from 'nestjs-telegraf';
 import { Context } from 'src/interfaces/context.interface';
-import {
-  SceneNames,
-  Actions,
-  Commands,
-  CommandsReply,
-  WelcomeMessages,
-  Menu,
-} from 'src/app.constants';
+import { SceneNames, Actions, Commands, CommandsReply, WelcomeMessages, Menu } from 'src/app.constants';
 import { githubUrl, supportedCommands } from 'src/constants/bot.constants';
 
 @Update()
