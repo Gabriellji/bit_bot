@@ -8,7 +8,7 @@ export class TelegrafConfigService {
   constructor(private readonly configService: ConfigService) {}
   createTelegrafOptions(): TelegrafModuleOptions {
     return {
-      token: this.configService.get('TELEGRAM_BOT_TOKEN'),
+      token: this.configService.get('TELEGRAM_BOT_TOKEN') as string,
       middlewares: [session()],
     };
   }

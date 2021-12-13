@@ -10,15 +10,16 @@ import {
   ChatMessages,
 } from 'src/app.constants';
 import Web3 from 'web3';
-import { SceneContext } from 'telegraf/typings/scenes';
-import { Markup } from 'telegraf';
+import { SceneContext, SceneSessionData } from 'telegraf/typings/scenes';
+import { Markup, Context } from 'telegraf';
 import { ConfigService } from '@nestjs/config';
+import { Message } from 'typegram';
 
 @Scene(SceneNames.INPUT_CONTRACT_SCENE)
 export class InputContract {
   constructor(private readonly configService: ConfigService) {}
 
-  web3 = new Web3(this.configService.get('WEB3_HOST'));
+  web3 = new Web3(this.configService.get('WEB3_HOST') as string);
 
   @SceneEnter()
   async onSceneEnter(@Ctx() ctx: SceneContext): Promise<void> {
@@ -51,19 +52,19 @@ export class InputContract {
   async onMessage(@Ctx() ctx: SceneContext) {
     let address: string | boolean;
     try {
-      const message = ctx.message['text'];
-      address = Web3.utils.toChecksumAddress(message);
+      const message = ctx.message as Message.TextMessage;
+      address = Web3.utils.toChecksumAddress(message.text);
       await ctx.telegram.sendMessage(
-        this.configService.get('CHAT_ID'),
+        this.configService.get('CHAT_ID') as string,
         ChatMessages.AUCTION_CHAT_MESSAGE,
 
         Markup.inlineKeyboard([Markup.button.callback(Buttons.MAKE_BID, Actions.AUCTION)])
       );
+      ctx.state.token = address;
     } catch (e) {
       await ctx.replyWithHTML(Errors.INVALID_ADDRESS);
       await ctx.scene.leave();
     }
-    ctx.state.token = address;
     await ctx.scene.leave();
   }
 
