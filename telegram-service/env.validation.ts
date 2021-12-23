@@ -7,7 +7,11 @@ export class EnvironmentVariables {
 
   @IsString()
   TELEGRAM_BOT_TOKEN: string;
+
+  @IsString()
   CHAT_ID: string;
+
+  @IsString()
   WEB3_HOST: string;
 }
 
