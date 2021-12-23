@@ -10,16 +10,16 @@ import {
   ChatMessages,
 } from 'src/app.constants';
 import Web3 from 'web3';
-import { SceneContext, SceneSessionData } from 'telegraf/typings/scenes';
-import { Markup, Context } from 'telegraf';
+import { SceneContext } from 'telegraf/typings/scenes';
+import { Markup } from 'telegraf';
 import { ConfigService } from '@nestjs/config';
 import { Message } from 'typegram';
-
+import { EnvironmentVariables } from 'env.validation';
 @Scene(SceneNames.INPUT_CONTRACT_SCENE)
 export class InputContract {
   constructor(private readonly configService: ConfigService) {}
 
-  web3 = new Web3(this.configService.get('WEB3_HOST') as string);
+  web3 = new Web3(this.configService.get('WEB3_HOST') as EnvironmentVariables["WEB3_HOST"]);
 
   @SceneEnter()
   async onSceneEnter(@Ctx() ctx: SceneContext): Promise<void> {
@@ -55,7 +55,7 @@ export class InputContract {
       const message = ctx.message as Message.TextMessage;
       address = Web3.utils.toChecksumAddress(message.text);
       await ctx.telegram.sendMessage(
-        this.configService.get('CHAT_ID') as string,
+        this.configService.get('CHAT_ID') as EnvironmentVariables["CHAT_ID"],
         ChatMessages.AUCTION_CHAT_MESSAGE,
 
         Markup.inlineKeyboard([Markup.button.callback(Buttons.MAKE_BID, Actions.AUCTION)])

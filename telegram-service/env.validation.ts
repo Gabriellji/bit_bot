@@ -1,14 +1,14 @@
 import { plainToClass } from 'class-transformer';
 import { IsNumber, validateSync, IsString } from 'class-validator';
 
-class EnvironmentVariables {
-
+export class EnvironmentVariables {
   @IsNumber()
   PORT: number;
 
   @IsString()
   TELEGRAM_BOT_TOKEN: string;
   CHAT_ID: string;
+  WEB3_HOST: string;
 }
 
 export function validate(config: Record<string, unknown>) {
