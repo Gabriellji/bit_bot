@@ -1,0 +1,3 @@
+[submodule "sub/nft-subgraph-open-zeppelin-hashmasks"]
+	path = sub/nft-subgraph-open-zeppelin-hashmasks
+	url = git@github.com:Gabriellji/nft-subgraph-open-zeppelin-hashmasks.git
